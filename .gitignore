@@ -1,0 +1,22 @@
+# ENV variable
+.env
+ 
+# large files and folders
+videos/
+audios/
+oldjsons/
+jsons/
+unused/
+embeddings.joblib
+prompt.txt
+response.txt
+ 
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+ 
+# Editor
+.vscode/
+ 

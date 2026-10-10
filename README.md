@@ -95,7 +95,7 @@ The system retrieves the 5 most relevant transcript chunks (by cosine similarity
 
 ## Design decisions
 
-**Chunking strategy.** Whisper produces short, sentence-level segments — too granular to give an LLM useful context on their own. Chunks are merged based on a character budget (rather than a fixed count of segments) so that each merged chunk stays a consistent, meaningful size regardless of how densely or sparsely the speaker talked in that section.
+**Chunking strategy.** Whisper produces short, sentence-level segments — too granular to give an LLM useful context on their own. Chunks are merged based on a fixed count of segments (Improvement can be done by using character based chunking so every chunk is equally dense).
 
 **Timestamps precomputed, not generated.** Rather than asking the LLM to convert raw seconds into minutes:seconds in its response (which LLMs are inconsistent at), timestamps are formatted in Python before being handed to the model — the LLM only has to relay a value that's already correct, never compute it.
 
@@ -139,5 +139,5 @@ The system retrieves the 5 most relevant transcript chunks (by cosine similarity
 ├── 04_merge_chunks.py
 ├── 05_preprocessed_json.py
 ├── 06_process_incoming.py
-└── .env
+└── .env                     # Your gemini api key
 ```

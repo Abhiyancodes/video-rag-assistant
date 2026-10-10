@@ -8,20 +8,27 @@ Built as a learning project to understand the full RAG pipeline end-to-end: audi
 
 ## How it works
 
+![Architecture diagram](architecture-diagram.png)
+
 ```
 videos/ (.mp4/.mkv)
+      │
       │  ffmpeg
       ▼
 audios/ (.mp3)
+      │
       │  Whisper (large-v2, Hindi → English translation)
       ▼
 oldjsons/ (raw per-segment transcripts, timestamped)
+      │
       │  merge into larger chunks 
       ▼
 jsons/ (merged, LLM-friendly chunks)
+      │
       │  Ollama embeddings (bge-m3)
       ▼
 embeddings.joblib (pandas DataFrame: text + metadata + embedding vector)
+      │
       │  cosine similarity search against a live question
       ▼
 Top-5 relevant chunks → prompt → Gemini → answer with video + timestamp
@@ -48,9 +55,9 @@ Each stage is a standalone script, run once in sequence to build the knowledge b
 
 **1. Install dependencies**
 ```bash
-pip install openai-whisper pandas numpy scikit-learn joblib requests python-dotenv google-genai
+pip install -r requirements.txt
 ```
-You'll also need `ffmpeg` installed and available on your PATH, and [Ollama](https://ollama.com) installed and running.
+The first install can take a while, since `openai-whisper` pulls in PyTorch (a large download). You'll also need `ffmpeg` installed and available on your PATH, and [Ollama](https://ollama.com) installed and running.
 
 **2. Pull the embedding model**
 ```bash
@@ -87,9 +94,13 @@ Steps 2–5 are one-time (or incremental) setup, they build your searchable know
 Ask a Question: How do I center a div using flexbox?
 ```
 
-The system retrieves the 5 most relevant transcript chunks (by cosine similarity between the question's embedding and every chunk's embedding), then passes them to Gemini along with the original question. A sample response:
+The system retrieves the 5 most relevant transcript chunks (by cosine similarity between the question's embedding and every chunk's embedding), then passes them to Gemini along with the original question. Real response from a run of `06_process_incoming.py`:
 
-> To center a div using Flexbox, you'll want to check out **Tutorial #14 (Flexbox Basics)** around **3:20–4:05**, where the instructor covers `justify-content: center` and `align-items: center` on the parent container. There's also a follow-up example in **Tutorial #14** around **6:40** showing centering both horizontally and vertically together.
+> To center a div using flexbox, you should refer to the **"Entities, Code tag and more on HTML"** video (Video #13).
+>
+> While the instructor touches upon the topic briefly at the **05:24** timestamp, they explain that while older tags like `<center>` used to be used, the modern and recommended professional approach is to use CSS techniques like Flexbox or Grid.
+>
+> I recommend watching that segment for the conceptual introduction, though keep in mind that the course covers the specific deep-dive implementation of Flexbox and Grid in later dedicated videos.
 
 ---
 
@@ -129,15 +140,18 @@ The system retrieves the 5 most relevant transcript chunks (by cosine similarity
 
 ```
 .
-├── videos/              # input video files
-├── audios/               # extracted mp3s
-├── oldjsons/             # raw per-segment transcripts
-├── jsons/                # merged chunks
-├── embeddings.joblib      # final DataFrame: chunks + embeddings
+├── videos/                  # input video files
+├── audios/                  # extracted mp3s
+├── oldjsons/                # raw per-segment transcripts
+├── jsons/                   # merged chunks
+├── embeddings.joblib        # final DataFrame: chunks + embeddings
 ├── 02_video_to_mp3.py
 ├── 03_mp3_to_json.py
 ├── 04_merge_chunks.py
 ├── 05_preprocessed_json.py
 ├── 06_process_incoming.py
+├── architecture-diagram.png # diagram used in this README
+├── requirements.txt         # pinned dependencies
+├── .gitignore
 └── .env                     # Your gemini api key
 ```
